@@ -78,4 +78,14 @@
         app:layout_constraintLeft_toLeftOf="@id/reader_connected_label"
         app:layout_constraintStart_toStartOf="@id/reader_connected_label" />
 
+    <Button
+        android:id="@+id/open_app_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open App"
+        tools:layout_editor_absoluteX="141dp"
+        tools:layout_editor_absoluteY="434dp" 
+        app:layout_constraintLeft_toLeftOf="@id/open_app_button"
+        app:layout_constraintStart_toStartOf="@id/open_app_button" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

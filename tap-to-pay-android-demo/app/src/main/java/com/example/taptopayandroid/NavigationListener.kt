@@ -23,4 +23,7 @@ interface NavigationListener {
     fun onNavigateToPaymentDetails()
 
     fun onCancel()
+
+    fun openApp()
+
 }

@@ -3,11 +3,14 @@ package com.example.taptopayandroid
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +26,7 @@ import com.stripe.stripeterminal.log.LogLevel
 import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Call
 import retrofit2.Response
+import android.widget.Button
 
 var SKIP_TIPPING: Boolean = true
 
@@ -56,6 +60,8 @@ class MainActivity : AppCompatActivity(), NavigationListener {
         } else {
             Log.w(MainActivity::class.java.simpleName, "Failed to acquire Bluetooth permission")
         }
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -100,7 +106,8 @@ class MainActivity : AppCompatActivity(), NavigationListener {
 
         try {
             gpsEnabled = locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
-        } catch (exception: Exception) {}
+        } catch (exception: Exception) {
+        }
 
         if (!gpsEnabled) {
             // notify user
@@ -151,7 +158,7 @@ class MainActivity : AppCompatActivity(), NavigationListener {
         skipTipping: Boolean,
         extendedAuth: Boolean,
         incrementalAuth: Boolean
-    ){
+    ) {
         SKIP_TIPPING = skipTipping
 
         ApiClient.createPaymentIntent(
@@ -241,7 +248,7 @@ class MainActivity : AppCompatActivity(), NavigationListener {
         )
     }
 
-    private fun connectReader(){
+    private fun connectReader() {
         val config = DiscoveryConfiguration(
             timeout = 0,
             discoveryMethod = DiscoveryMethod.LOCAL_MOBILE,
@@ -256,12 +263,13 @@ class MainActivity : AppCompatActivity(), NavigationListener {
                 readers.filter { it.networkStatus != Reader.NetworkStatus.OFFLINE }
                 var reader = readers[0]
 
-                val config = ConnectionConfiguration.LocalMobileConnectionConfiguration("${mutableListState.value.locations[0].id}")
+                val config =
+                    ConnectionConfiguration.LocalMobileConnectionConfiguration("${mutableListState.value.locations[0].id}")
 
                 Terminal.getInstance().connectLocalMobileReader(
                     reader,
                     config,
-                    object: ReaderCallback {
+                    object : ReaderCallback {
                         override fun onFailure(e: TerminalException) {
                             e.printStackTrace()
                         }
@@ -270,11 +278,13 @@ class MainActivity : AppCompatActivity(), NavigationListener {
                             // Update the UI with the location name and terminal ID
                             runOnUiThread {
                                 val manager: FragmentManager = supportFragmentManager
-                                val fragment: Fragment? = manager.findFragmentByTag(ConnectReaderFragment.TAG)
+                                val fragment: Fragment? =
+                                    manager.findFragmentByTag(ConnectReaderFragment.TAG)
 
-                                if(reader.id !== null && mutableListState.value.locations[0].displayName !== null){
+                                if (reader.id !== null && mutableListState.value.locations[0].displayName !== null) {
                                     (fragment as ConnectReaderFragment).updateReaderId(
-                                        mutableListState.value.locations[0].displayName!!, reader.id!!
+                                        mutableListState.value.locations[0].displayName!!,
+                                        reader.id!!
                                     )
                                 }
                             }
@@ -317,7 +327,7 @@ class MainActivity : AppCompatActivity(), NavigationListener {
             .commitAllowingStateLoss()
     }
 
-    override fun onConnectReader(){
+    override fun onConnectReader() {
         connectReader()
     }
 
@@ -327,16 +337,52 @@ class MainActivity : AppCompatActivity(), NavigationListener {
         skipTipping: Boolean,
         extendedAuth: Boolean,
         incrementalAuth: Boolean
-    ){
+    ) {
         collectPayment(amount, currency, skipTipping, extendedAuth, incrementalAuth)
     }
 
-    override fun onNavigateToPaymentDetails(){
+    override fun onNavigateToPaymentDetails() {
         // Navigate to the fragment that will show the payment details
         navigateTo(PaymentDetails.TAG, PaymentDetails(), true)
     }
 
-    override fun onCancel(){
+    override fun onCancel() {
         navigateTo(ConnectReaderFragment.TAG, ConnectReaderFragment(), true)
     }
+
+
+    override fun openApp() {
+        // calling another app
+        val launchIntent = packageManager.getLaunchIntentForPackage("com.example.thirdapplication")
+        if (launchIntent != null) {
+            startActivity(launchIntent)
+
+        } else {
+            Toast.makeText(this, "No such package installed", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
+//    override fun openApp() {
+//        println("inside calling another app");
+////        val launchIntent = packageManager.getLaunchIntentForPackage("se.novacura.flow.ng")
+////        val launchIntent = packageManager.getLaunchIntentForPackage("com.example.secondapplication")
+//        val launchIntent = packageManager.getLaunchIntentForPackage("com.example.thirdapplication")
+////          val launchIntent = packageManager.getLaunchIntentForPackage("com.facebook.lite")
+////        val launchIntent = packageManager.getLaunchIntentForPackage("com.facebook.katana")
+////        val launchIntent = packageManager.getLaunchIntentForPackage("com.spotify.music")
+////        val launchIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com"))
+//        if (launchIntent != null) {
+//            // **** Send data to another app *****   Reference: https://developer.android.com/training/basics/intents/sending#java
+////            launchIntent.putExtra("KEY1", "send data to next app")
+////            launchIntent.putExtra(Intent.EXTRA_EMAIL, "sachini.m@creativesoftware.com")
+//            startActivity(launchIntent)
+//
+//        } else {
+//            Toast.makeText(this, "No suchh package installed", Toast.LENGTH_LONG).show()
+//        }
+//    }
+
+
 }
+

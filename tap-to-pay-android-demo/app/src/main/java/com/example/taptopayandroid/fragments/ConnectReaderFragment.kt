@@ -11,8 +11,11 @@ import android.widget.TextView
 import com.example.taptopayandroid.NavigationListener
 import com.example.taptopayandroid.R
 
+//@SuppressLint("StaticFieldLeak")
 var btnConnectReader: Button? = null
+//@SuppressLint("StaticFieldLeak")
 var editPaymentDetailsButton: Button? = null
+var openAppButton: Button? = null
 var currentReaderDetails: String? = null
 
 class ConnectReaderFragment : Fragment() {
@@ -30,6 +33,12 @@ class ConnectReaderFragment : Fragment() {
 
         btnConnectReader = view?.findViewById(R.id.connect_reader_button) as Button
         editPaymentDetailsButton = view?.findViewById(R.id.edit_payment_details_button) as Button
+        // Assuming you have a button with the id "openAppButton" in your layout
+        openAppButton = view?.findViewById(R.id.open_app_button) as Button
+
+        openAppButton!!.setOnClickListener {
+            (activity as? NavigationListener)?.openApp();
+        }
 
         // If the user is getting to this view after having already connected a reader
         if(currentReaderDetails !== null){
